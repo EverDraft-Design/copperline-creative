@@ -1376,6 +1376,7 @@ p {
     font-size: clamp(1.12rem, 5.6vw, 1.34rem);
     line-height: 1.2;
     list-style: none;
+    list-style-type: none;
     list-style-image: none;
     list-style-position: outside;
     cursor: pointer;
@@ -1386,15 +1387,21 @@ p {
 
   main#main .faq-list details.faq-item summary::-webkit-details-marker {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
     width: 0 !important;
     height: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
     content: "" !important;
   }
 
   main#main .faq-list details.faq-item summary::marker {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
     font-size: 0 !important;
+    line-height: 0 !important;
     content: "" !important;
   }
 
