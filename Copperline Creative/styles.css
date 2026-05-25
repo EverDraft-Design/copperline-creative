@@ -1067,19 +1067,106 @@ p {
     border-radius: 26px;
   }
 
+  .faq-hero,
+  .faq-section,
+  .faq-cta-wrap {
+    width: min(100% - 24px, var(--max));
+  }
+
+  .faq-hero {
+    padding-top: 38px;
+    padding-bottom: 30px;
+  }
+
+  .faq-section {
+    padding-top: 28px;
+    padding-bottom: 38px;
+  }
+
+  .faq-cta-wrap {
+    padding-top: 18px;
+    padding-bottom: 28px;
+  }
+
+  .faq-hero .eyebrow,
+  .faq-section .eyebrow,
+  .faq-cta-wrap .eyebrow {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 0 14px;
+    padding: 2px 0;
+    overflow: visible;
+    font-size: 0.78rem;
+    font-weight: 900;
+    line-height: 1.35;
+    letter-spacing: 0.13em;
+  }
+
+  .faq-hero-copy p:not(.eyebrow) {
+    margin-top: 18px;
+    line-height: 1.62;
+  }
+
   .faq-hero-mark {
     justify-self: start;
     width: 150px;
+    margin-top: 10px;
+  }
+
+  .faq-list {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .faq-item {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 22px;
+    border-color: rgba(134, 73, 47, 0.18);
+    box-shadow: 0 14px 34px rgba(76, 54, 43, 0.11);
   }
 
   .faq-item summary {
     align-items: flex-start;
+    gap: 14px;
+    padding: 20px 18px;
+    font-size: clamp(1.16rem, 6vw, 1.42rem);
+    line-height: 1.18;
+    overflow-wrap: normal;
   }
 
   .faq-item summary::after {
     width: 30px;
     height: 30px;
+    margin-top: -2px;
     font-size: 1.15rem;
+  }
+
+  .faq-item p {
+    margin: -4px 0 0;
+    padding: 0 18px 22px;
+    font-size: 0.98rem;
+    line-height: 1.68;
+    overflow-wrap: break-word;
+  }
+
+  .faq-cta-panel {
+    min-height: 310px;
+  }
+
+  .faq-cta-panel .contact-copy p {
+    line-height: 1.62;
+  }
+
+  .faq-cta-panel .eyebrow {
+    color: var(--bronze);
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .faq-cta-panel .button {
+    width: auto;
   }
   .portfolio-link {
 
