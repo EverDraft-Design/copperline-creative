@@ -11,6 +11,7 @@
     <link rel="icon" href="../Assets/brand/Favicon/favicon.ico">
     <link rel="apple-touch-icon" href="../Assets/brand/Favicon/apple-touch-icon.png">
     <link rel="stylesheet" href="../styles.css?v=flyer-20260601">
+    <script src="contact-form.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -110,9 +111,9 @@
 
           <form
             class="flyer-contact-form"
-            action="mailto:hello@copperline-creative.com.au"
+            action="/api/contact"
             method="post"
-            enctype="text/plain"
+            novalidate
           >
             <label>
               <span>Name</span>
@@ -126,7 +127,12 @@
 
             <label>
               <span>Business Name</span>
-              <input type="text" name="business-name" autocomplete="organization">
+              <input type="text" name="businessName" autocomplete="organization">
+            </label>
+
+            <label class="flyer-form-honeypot" aria-hidden="true">
+              <span>Company</span>
+              <input type="text" name="company" tabindex="-1" autocomplete="off">
             </label>
 
             <label>
@@ -135,6 +141,7 @@
             </label>
 
             <button class="button" type="submit">Send Message</button>
+            <p class="flyer-form-status" role="status" aria-live="polite"></p>
 
             <a class="flyer-learn-more-link" href="../index.html">
               Want to learn more about Copperline Creative?

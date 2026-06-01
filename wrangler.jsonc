@@ -1,12 +1,18 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "copperline-creative",
+  "main": "src/index.mjs",
   "compatibility_date": "2026-05-25",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "Copperline Creative"
+    "directory": "Copperline Creative",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "COPPERLINE_CONTACT_TO_EMAIL": "hello@copperline-creative.com.au",
+    "COPPERLINE_CONTACT_FROM_EMAIL": "website@send.copperline-creative.com.au"
   },
   "compatibility_flags": [
     "nodejs_compat"

@@ -1220,10 +1220,40 @@ p {
   outline-offset: 2px;
 }
 
+.flyer-contact-form button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
 .flyer-contact-form .button {
   width: fit-content;
   margin-top: 6px;
   cursor: pointer;
+}
+
+.flyer-form-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.flyer-form-status {
+  min-height: 1.6em;
+  margin: 0;
+  color: rgba(251, 247, 239, 0.86);
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+.flyer-form-status[data-status="success"] {
+  color: var(--bronze);
+}
+
+.flyer-form-status[data-status="error"] {
+  color: #f0b2a2;
 }
 
 .flyer-learn-more-link {
