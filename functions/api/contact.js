@@ -23,7 +23,11 @@ function normalisePayload(payload) {
   return {
     name: String(payload.name || "").trim(),
     email: String(payload.email || "").trim(),
+    phone: String(payload.phone || "").trim(),
     businessName: String(payload.businessName || payload["business-name"] || "").trim(),
+    projectType: Array.isArray(payload.projectType)
+      ? payload.projectType.map((value) => String(value).trim()).filter(Boolean)
+      : String(payload.projectType || "").trim(),
     message: String(payload.message || "").trim(),
     company: String(payload.company || "").trim(),
   };
@@ -65,12 +69,23 @@ function buildEmailHtml(fields) {
   const businessLine = fields.businessName
     ? `<p><strong>Business name:</strong> ${escapeHtml(fields.businessName)}</p>`
     : "";
+  const phoneLine = fields.phone
+    ? `<p><strong>Phone:</strong> ${escapeHtml(fields.phone)}</p>`
+    : "";
+  const projectType = Array.isArray(fields.projectType)
+    ? fields.projectType.join(", ")
+    : fields.projectType;
+  const projectTypeLine = projectType
+    ? `<p><strong>Project type:</strong> ${escapeHtml(projectType)}</p>`
+    : "";
 
   return `
     <h1>New Copperline Creative enquiry</h1>
     <p><strong>Name:</strong> ${escapeHtml(fields.name)}</p>
     <p><strong>Email:</strong> ${escapeHtml(fields.email)}</p>
+    ${phoneLine}
     ${businessLine}
+    ${projectTypeLine}
     <p><strong>Message:</strong></p>
     <p>${escapeHtml(fields.message).replaceAll("\n", "<br>")}</p>
     <hr>

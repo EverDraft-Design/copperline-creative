@@ -6,6 +6,8 @@ import { onRequest } from "../functions/api/contact.js";
 
 const flyerHtmlPath = new URL("../Copperline Creative/flyer/index.html", import.meta.url);
 const flyerScriptPath = new URL("../Copperline Creative/flyer/contact-form.js", import.meta.url);
+const homeHtmlPath = new URL("../Copperline Creative/index.html", import.meta.url);
+const modalScriptPath = new URL("../Copperline Creative/contact-modal.js", import.meta.url);
 
 test("flyer contact form posts to the Pages Function endpoint", async () => {
   const html = await readFile(flyerHtmlPath, "utf8");
@@ -19,6 +21,24 @@ test("flyer contact form posts to the Pages Function endpoint", async () => {
   assert.match(html, /<script src="contact-form\.js" defer><\/script>/);
   assert.match(script, /event\.preventDefault\(\)/);
   assert.match(script, /fetch\("\/api\/contact"/);
+});
+
+test("homepage contact CTAs open the modal instead of mailto navigation", async () => {
+  const html = await readFile(homeHtmlPath, "utf8");
+  const script = await readFile(modalScriptPath, "utf8");
+
+  assert.match(html, /<script src="contact-modal\.js" defer><\/script>/);
+  assert.match(html, /data-contact-modal/);
+  assert.match(html, /data-contact-modal-open/);
+  assert.match(html, /aria-modal="true"/);
+  assert.match(html, /name="phone"/);
+  assert.match(html, /name="projectType"/);
+  assert.match(html, /Get in touch &rarr;<\/a>/);
+  assert.doesNotMatch(html, /<a class="button" href="mailto:hello@copperline-creative\.com\.au">Get in touch/);
+  assert.match(script, /fetch\("\/api\/contact"/);
+  assert.match(script, /event\.key === "Escape"/);
+  assert.match(script, /window\.location\.hash === "#contact-modal"/);
+  assert.match(script, /projectType/);
 });
 
 function callContactFunction(request, env = {}) {
@@ -41,7 +61,9 @@ test("POST /api/contact sends a Copperline enquiry through Resend", async () => 
       body: JSON.stringify({
         name: "Test Person",
         email: "test@example.com",
+        phone: "0432 000 000",
         businessName: "Test Studio",
+        projectType: ["Website", "Copywriting"],
         message: "Hello from the flyer",
       }),
     });
@@ -62,7 +84,9 @@ test("POST /api/contact sends a Copperline enquiry through Resend", async () => 
     assert.deepEqual(resendPayload.to, ["hello@copperline-creative.com.au"]);
     assert.equal(resendPayload.reply_to, "test@example.com");
     assert.equal(resendPayload.subject, "New Copperline Creative enquiry from Test Person");
+    assert.match(resendPayload.html, /0432 000 000/);
     assert.match(resendPayload.html, /Test Studio/);
+    assert.match(resendPayload.html, /Website, Copywriting/);
     assert.match(resendPayload.html, /Hello from the flyer/);
     assert.equal(resendRequest.options.headers.Authorization, "Bearer secret");
   } finally {
