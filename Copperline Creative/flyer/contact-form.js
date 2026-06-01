@@ -40,14 +40,22 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(payload),
       });
 
+      const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error("Contact request failed");
+        const missing = Array.isArray(result.missing) && result.missing.length
+          ? ` Missing: ${result.missing.join(", ")}.`
+          : "";
+        const detail = result.code ? ` (${result.code})` : "";
+
+        throw new Error(`${result.error || "Contact request failed"}${detail}.${missing}`);
       }
 
       form.reset();
       setStatus("Thanks, your message has been sent. I'll be in touch soon.", "success");
-    } catch {
-      setStatus("Something went wrong sending your message. Please email hello@copperline-creative.com.au instead.", "error");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong sending your message.";
+      setStatus(`${message} Please email hello@copperline-creative.com.au instead.`, "error");
     } finally {
       if (submitButton) {
         submitButton.disabled = false;

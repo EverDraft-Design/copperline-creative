@@ -38,8 +38,7 @@ async function parseContactPayload(request) {
 
   if (
     contentType.includes("application/x-www-form-urlencoded") ||
-    contentType.includes("multipart/form-data") ||
-    contentType.includes("text/plain")
+    contentType.includes("multipart/form-data")
   ) {
     const formData = await request.formData();
     return Object.fromEntries(formData.entries());
@@ -48,12 +47,18 @@ async function parseContactPayload(request) {
   return request.json();
 }
 
-function getEmailConfig(env) {
+function getEnvironmentStatus(env) {
   return {
-    apiKey: env.RESEND_API_KEY,
-    toEmail: env.COPPERLINE_CONTACT_TO_EMAIL || env.CONTACT_TO_EMAIL,
-    fromEmail: env.COPPERLINE_CONTACT_FROM_EMAIL || env.CONTACT_FROM_EMAIL,
+    RESEND_API_KEY: Boolean(env.RESEND_API_KEY),
+    CONTACT_TO_EMAIL: Boolean(env.CONTACT_TO_EMAIL),
+    CONTACT_FROM_EMAIL: Boolean(env.CONTACT_FROM_EMAIL),
   };
+}
+
+function getMissingEnvironmentKeys(environmentStatus) {
+  return Object.entries(environmentStatus)
+    .filter(([, configured]) => !configured)
+    .map(([key]) => key);
 }
 
 function buildEmailHtml(fields) {
@@ -67,9 +72,9 @@ function buildEmailHtml(fields) {
     <p><strong>Email:</strong> ${escapeHtml(fields.email)}</p>
     ${businessLine}
     <p><strong>Message:</strong></p>
-    <p>${escapeHtml(fields.message).replaceAll("\n", "<br />")}</p>
-    <hr />
-    <p>Submitted from copperline-creative.com.au/flyer/</p>
+    <p>${escapeHtml(fields.message).replaceAll("\n", "<br>")}</p>
+    <hr>
+    <p>Submitted from Copperline Creative /flyer/</p>
   `;
 }
 
@@ -79,7 +84,14 @@ async function handleContactRequest(request, env) {
   try {
     payload = await parseContactPayload(request);
   } catch {
-    return jsonResponse({ error: "Invalid request body.", code: "INVALID_BODY" }, 400);
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Invalid request body.",
+        code: "INVALID_BODY",
+      },
+      400,
+    );
   }
 
   const fields = normalisePayload(payload);
@@ -89,50 +101,76 @@ async function handleContactRequest(request, env) {
   }
 
   if (!fields.name || !fields.email || !fields.message) {
-    return jsonResponse({ error: "Name, email, and message are required.", code: "INVALID_REQUEST" }, 400);
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Name, email, and message are required.",
+        code: "INVALID_REQUEST",
+      },
+      400,
+    );
   }
 
   if (!EMAIL_PATTERN.test(fields.email)) {
-    return jsonResponse({ error: "Please provide a valid email address.", code: "INVALID_REQUEST" }, 400);
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Please provide a valid email address.",
+        code: "INVALID_EMAIL",
+      },
+      400,
+    );
   }
 
-  const emailConfig = getEmailConfig(env);
-  const environmentStatus = {
-    RESEND_API_KEY: Boolean(emailConfig.apiKey),
-    COPPERLINE_CONTACT_TO_EMAIL: Boolean(emailConfig.toEmail),
-    COPPERLINE_CONTACT_FROM_EMAIL: Boolean(emailConfig.fromEmail),
-  };
+  const environmentStatus = getEnvironmentStatus(env);
+  const missingEnvironmentKeys = getMissingEnvironmentKeys(environmentStatus);
 
   console.log("Copperline contact form environment status", environmentStatus);
 
-  if (!environmentStatus.RESEND_API_KEY || !environmentStatus.COPPERLINE_CONTACT_TO_EMAIL || !environmentStatus.COPPERLINE_CONTACT_FROM_EMAIL) {
-    return jsonResponse({ error: "Contact form email is not configured.", code: "MISSING_ENV" }, 500);
+  if (missingEnvironmentKeys.length > 0) {
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Contact form email is not configured.",
+        code: "MISSING_ENV",
+        missing: missingEnvironmentKeys,
+      },
+      500,
+    );
   }
 
   let resendResponse;
+  const resendPayload = {
+    from: `Copperline Creative <${env.CONTACT_FROM_EMAIL}>`,
+    to: [env.CONTACT_TO_EMAIL],
+    reply_to: fields.email,
+    subject: `New Copperline Creative enquiry from ${fields.name}`,
+    html: buildEmailHtml(fields),
+  };
 
   try {
     resendResponse = await fetch(RESEND_API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${emailConfig.apiKey}`,
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
-        "User-Agent": "copperline-creative-worker",
+        "User-Agent": "copperline-creative-pages-function",
       },
-      body: JSON.stringify({
-        from: `Copperline Creative <${emailConfig.fromEmail}>`,
-        to: [emailConfig.toEmail],
-        reply_to: fields.email,
-        subject: `New Copperline Creative enquiry from ${fields.name}`,
-        html: buildEmailHtml(fields),
-      }),
+      body: JSON.stringify(resendPayload),
     });
   } catch (error) {
     console.error("Resend fetch failed", {
       message: error instanceof Error ? error.message : String(error),
     });
 
-    return jsonResponse({ error: "Unable to send message.", code: "RESEND_FETCH_FAILED" }, 502);
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Unable to reach Resend.",
+        code: "RESEND_FETCH_FAILED",
+      },
+      502,
+    );
   }
 
   const resendResponseBody = await resendResponse.text();
@@ -143,24 +181,32 @@ async function handleContactRequest(request, env) {
       body: resendResponseBody,
     });
 
-    return jsonResponse({ error: "Unable to send message.", code: "RESEND_ERROR" }, 502);
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Resend rejected the email request.",
+        code: "RESEND_ERROR",
+        resendStatus: resendResponse.status,
+        resendBody: resendResponseBody,
+      },
+      502,
+    );
   }
 
   return jsonResponse({ ok: true });
 }
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
+export async function onRequest({ request, env }) {
+  if (request.method !== "POST") {
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Method not allowed.",
+        code: "METHOD_NOT_ALLOWED",
+      },
+      405,
+    );
+  }
 
-    if (url.pathname === "/api/contact") {
-      if (request.method !== "POST") {
-        return jsonResponse({ error: "Method not allowed." }, 405);
-      }
-
-      return handleContactRequest(request, env);
-    }
-
-    return env.ASSETS.fetch(request);
-  },
-};
+  return handleContactRequest(request, env);
+}
