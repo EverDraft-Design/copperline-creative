@@ -5,22 +5,32 @@ import test from "node:test";
 import { onRequest } from "../functions/api/contact.js";
 
 const flyerHtmlPath = new URL("../Copperline Creative/flyer/index.html", import.meta.url);
-const flyerScriptPath = new URL("../Copperline Creative/flyer/contact-form.js", import.meta.url);
 const homeHtmlPath = new URL("../Copperline Creative/index.html", import.meta.url);
+const faqHtmlPath = new URL("../Copperline Creative/faq.html", import.meta.url);
 const modalScriptPath = new URL("../Copperline Creative/contact-modal.js", import.meta.url);
 
-test("flyer contact form posts to the Pages Function endpoint", async () => {
+test("flyer contact CTAs open the shared modal with flyer source tracking", async () => {
   const html = await readFile(flyerHtmlPath, "utf8");
-  const script = await readFile(flyerScriptPath, "utf8");
+  const script = await readFile(modalScriptPath, "utf8");
 
-  assert.match(html, /class="flyer-contact-form"/);
+  assert.match(html, /<script src="\.\.\/contact-modal\.js" defer><\/script>/);
+  assert.match(html, /data-contact-modal/);
+  assert.match(html, /data-contact-modal-open/);
+  assert.match(html, /data-contact-cta="Flyer header Let's do this"/);
+  assert.match(html, /data-contact-cta="Flyer contact box Let's Chat"/);
+  assert.doesNotMatch(html, /class="flyer-contact-form"/);
   assert.match(html, /action="\/api\/contact"/);
   assert.match(html, /method="post"/);
   assert.match(html, /novalidate/);
-  assert.match(html, /<p class="flyer-form-status" role="status" aria-live="polite"><\/p>/);
-  assert.match(html, /<script src="contact-form\.js" defer><\/script>/);
+  assert.match(html, /name="leadSource" value="Flyer landing page"/);
+  assert.match(html, /name="pagePath" value="\/flyer\/"/);
+  assert.match(html, /name="ctaLabel" value="Flyer contact modal"/);
+  assert.match(html, /name="phone"/);
+  assert.match(html, /name="projectType"/);
+  assert.match(html, /<p class="contact-modal-status" role="status" aria-live="polite"><\/p>/);
   assert.match(script, /event\.preventDefault\(\)/);
   assert.match(script, /fetch\("\/api\/contact"/);
+  assert.match(script, /projectType/);
 });
 
 test("homepage contact CTAs open the modal instead of mailto navigation", async () => {
@@ -33,12 +43,32 @@ test("homepage contact CTAs open the modal instead of mailto navigation", async 
   assert.match(html, /aria-modal="true"/);
   assert.match(html, /name="phone"/);
   assert.match(html, /name="projectType"/);
+  assert.match(html, /name="leadSource" value="Main website"/);
+  assert.match(html, /name="pagePath" value="\/"/);
+  assert.match(html, /name="ctaLabel" value="Main website contact modal"/);
+  assert.match(html, /data-contact-cta="Homepage header Let's do this"/);
   assert.match(html, /Get in touch &rarr;<\/a>/);
   assert.doesNotMatch(html, /<a class="button" href="mailto:hello@copperline-creative\.com\.au">Get in touch/);
   assert.match(script, /fetch\("\/api\/contact"/);
   assert.match(script, /event\.key === "Escape"/);
   assert.match(script, /window\.location\.hash === "#contact-modal"/);
+  assert.match(script, /ctaLabel/);
   assert.match(script, /projectType/);
+});
+
+test("FAQ CTAs open the shared contact modal with FAQ source tracking", async () => {
+  const html = await readFile(faqHtmlPath, "utf8");
+
+  assert.match(html, /<script src="contact-modal\.js" defer><\/script>/);
+  assert.match(html, /data-contact-modal/);
+  assert.match(html, /data-contact-modal-open/);
+  assert.match(html, /data-contact-cta="FAQ header Let's do this"/);
+  assert.match(html, /data-contact-cta="FAQ CTA Let's chat"/);
+  assert.match(html, /name="leadSource" value="FAQ page"/);
+  assert.match(html, /name="pagePath" value="\/faq\/"/);
+  assert.match(html, /name="ctaLabel" value="FAQ contact modal"/);
+  assert.doesNotMatch(html, /<a class="button button-small" href="mailto:hello@copperline-creative\.com\.au">Let's do this!<\/a>/);
+  assert.doesNotMatch(html, /<a class="button" href="mailto:hello@copperline-creative\.com\.au">Let’s chat<\/a>/);
 });
 
 function callContactFunction(request, env = {}) {
@@ -64,6 +94,9 @@ test("POST /api/contact sends a Copperline enquiry through Resend", async () => 
         phone: "0432 000 000",
         businessName: "Test Studio",
         projectType: ["Website", "Copywriting"],
+        leadSource: "Flyer landing page",
+        pagePath: "/flyer/",
+        ctaLabel: "Flyer contact form",
         message: "Hello from the flyer",
       }),
     });
@@ -88,6 +121,9 @@ test("POST /api/contact sends a Copperline enquiry through Resend", async () => 
     assert.match(resendPayload.html, /Test Studio/);
     assert.match(resendPayload.html, /Website, Copywriting/);
     assert.match(resendPayload.html, /Hello from the flyer/);
+    assert.match(resendPayload.html, /<strong>Submitted from:<\/strong> Flyer landing page/);
+    assert.match(resendPayload.html, /<strong>Page path:<\/strong> \/flyer\//);
+    assert.match(resendPayload.html, /<strong>CTA:<\/strong> Flyer contact form/);
     assert.equal(resendRequest.options.headers.Authorization, "Bearer secret");
   } finally {
     globalThis.fetch = originalFetch;
@@ -108,6 +144,7 @@ test("POST /api/contact accepts form-encoded submissions", async () => {
       name: "Form Person",
       email: "form@example.com",
       "business-name": "Form Business",
+      pagePath: "/faq/",
       message: "Hello via form encoding",
     });
 
@@ -127,6 +164,8 @@ test("POST /api/contact accepts form-encoded submissions", async () => {
     assert.equal(response.status, 200);
     assert.equal(resendPayload.reply_to, "form@example.com");
     assert.match(resendPayload.html, /Form Business/);
+    assert.match(resendPayload.html, /FAQ page/);
+    assert.match(resendPayload.html, /\/faq\//);
   } finally {
     globalThis.fetch = originalFetch;
   }

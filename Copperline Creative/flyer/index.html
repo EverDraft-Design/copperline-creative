@@ -11,7 +11,7 @@
     <link rel="icon" href="../Assets/brand/Favicon/favicon.ico">
     <link rel="apple-touch-icon" href="../Assets/brand/Favicon/apple-touch-icon.png">
     <link rel="stylesheet" href="../styles.css?v=flyer-20260601">
-    <script src="contact-form.js" defer></script>
+    <script src="../contact-modal.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -33,7 +33,14 @@
           <a href="#contact">Contact</a>
         </div>
 
-        <a class="button button-small" href="#contact">Let's do this!</a>
+        <a
+          class="button button-small"
+          href="#contact-modal"
+          data-contact-modal-open
+          data-contact-cta="Flyer header Let's do this"
+        >
+          Let's do this!
+        </a>
       </nav>
     </header>
 
@@ -54,7 +61,14 @@
               Whether you're starting from scratch, working with an outdated website, or simply feel like your business has outgrown its current branding, I'd love to hear about it.
             </p>
             <p>Before you reach out, take a quick look through the checklist below. You might be surprised how many boxes your business already ticks — or how much potential is waiting to be unlocked.</p>
-            <a class="button" href="#contact">Let's Chat</a>
+            <a
+              class="button"
+              href="#contact-modal"
+              data-contact-modal-open
+              data-contact-cta="Flyer hero Let's Chat"
+            >
+              Let's Chat
+            </a>
           </div>
 
           <div class="flyer-hero-mark" aria-label="Copperline Creative logo">
@@ -75,12 +89,36 @@
           </div>
 
           <div class="flyer-check-grid" aria-label="Online presence checklist">
-            <p><span aria-hidden="true"></span> Website works well on mobile</p>
-            <p><span aria-hidden="true"></span> Customers know what you do within 5 seconds</p>
-            <p><span aria-hidden="true"></span> Contact details are easy to find</p>
-            <p><span aria-hidden="true"></span> Branding feels professional and consistent</p>
-            <p><span aria-hidden="true"></span> You're proud to send people to your website</p>
-            <p><span aria-hidden="true"></span> Your business looks as trustworthy online as it does in person</p>
+            <label class="flyer-check-item">
+              <input type="checkbox" name="onlinePresenceCheck" value="mobile">
+              <span class="flyer-check-marker" aria-hidden="true"></span>
+              <span>Website works well on mobile</span>
+            </label>
+            <label class="flyer-check-item">
+              <input type="checkbox" name="onlinePresenceCheck" value="five-seconds">
+              <span class="flyer-check-marker" aria-hidden="true"></span>
+              <span>Customers know what you do within 5 seconds</span>
+            </label>
+            <label class="flyer-check-item">
+              <input type="checkbox" name="onlinePresenceCheck" value="contact-details">
+              <span class="flyer-check-marker" aria-hidden="true"></span>
+              <span>Contact details are easy to find</span>
+            </label>
+            <label class="flyer-check-item">
+              <input type="checkbox" name="onlinePresenceCheck" value="consistent-branding">
+              <span class="flyer-check-marker" aria-hidden="true"></span>
+              <span>Branding feels professional and consistent</span>
+            </label>
+            <label class="flyer-check-item">
+              <input type="checkbox" name="onlinePresenceCheck" value="proud-to-share">
+              <span class="flyer-check-marker" aria-hidden="true"></span>
+              <span>You're proud to send people to your website</span>
+            </label>
+            <label class="flyer-check-item">
+              <input type="checkbox" name="onlinePresenceCheck" value="trustworthy-online">
+              <span class="flyer-check-marker" aria-hidden="true"></span>
+              <span>Your business looks as trustworthy online as it does in person</span>
+            </label>
           </div>
 
           <div class="flyer-check-note">
@@ -107,46 +145,22 @@
                 <a href="mailto:hello@copperline-creative.com.au">hello@copperline-creative.com.au</a>
               </p>
             </div>
-          </div>
 
-          <form
-            class="flyer-contact-form"
-            action="/api/contact"
-            method="post"
-            novalidate
-          >
-            <label>
-              <span>Name</span>
-              <input type="text" name="name" autocomplete="name" required>
-            </label>
-
-            <label>
-              <span>Email</span>
-              <input type="email" name="email" autocomplete="email" required>
-            </label>
-
-            <label>
-              <span>Business Name</span>
-              <input type="text" name="businessName" autocomplete="organization">
-            </label>
-
-            <label class="flyer-form-honeypot" aria-hidden="true">
-              <span>Company</span>
-              <input type="text" name="company" tabindex="-1" autocomplete="off">
-            </label>
-
-            <label>
-              <span>Message</span>
-              <textarea name="message" rows="5" required></textarea>
-            </label>
-
-            <button class="button" type="submit">Send Message</button>
-            <p class="flyer-form-status" role="status" aria-live="polite"></p>
+            <div class="flyer-contact-actions">
+              <a
+                class="button"
+                href="#contact-modal"
+                data-contact-modal-open
+                data-contact-cta="Flyer contact box Let's Chat"
+              >
+                Let's Chat
+              </a>
+            </div>
 
             <a class="flyer-learn-more-link" href="../index.html">
               Want to learn more about Copperline Creative?
             </a>
-          </form>
+          </div>
 
           <img
             class="contact-smear"
@@ -177,5 +191,98 @@
         <span>ABN: 39 838 629 521</span>
       </div>
     </footer>
+
+    <div
+      id="contact-modal"
+      class="contact-modal"
+      data-contact-modal
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="contact-modal-heading"
+      hidden
+    >
+      <div class="contact-modal-card" role="document">
+        <button
+          class="contact-modal-close"
+          type="button"
+          aria-label="Close contact form"
+          data-contact-modal-close
+        >
+          ×
+        </button>
+
+        <div class="contact-modal-copy">
+          <p class="eyebrow">Let's chat</p>
+          <h2 id="contact-modal-heading">Tell me what you're dreaming up.</h2>
+          <p>
+            Share a few details and I'll come back to you with the next best step.
+          </p>
+        </div>
+
+        <form class="contact-modal-form" action="/api/contact" method="post" novalidate>
+          <input type="hidden" name="leadSource" value="Flyer landing page">
+          <input type="hidden" name="pagePath" value="/flyer/">
+          <input type="hidden" name="ctaLabel" value="Flyer contact modal">
+
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+
+          <label>
+            <span>Phone</span>
+            <input type="tel" name="phone" autocomplete="tel">
+          </label>
+
+          <label>
+            <span>Business name</span>
+            <input type="text" name="businessName" autocomplete="organization">
+          </label>
+
+          <fieldset class="contact-modal-options">
+            <legend>Project type</legend>
+            <label>
+              <input type="checkbox" name="projectType" value="Website">
+              <span>Website</span>
+            </label>
+            <label>
+              <input type="checkbox" name="projectType" value="Logo & Branding">
+              <span>Logo &amp; Branding</span>
+            </label>
+            <label>
+              <input type="checkbox" name="projectType" value="Copywriting">
+              <span>Copywriting</span>
+            </label>
+            <label>
+              <input type="checkbox" name="projectType" value="Not sure yet">
+              <span>Not sure yet</span>
+            </label>
+          </fieldset>
+
+          <label class="flyer-form-honeypot" aria-hidden="true">
+            <span>Company</span>
+            <input type="text" name="company" tabindex="-1" autocomplete="off">
+          </label>
+
+          <label>
+            <span>Message</span>
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+
+          <button class="button" type="submit">Send Message</button>
+          <p class="contact-modal-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="contact-modal-success" tabindex="-1" hidden>
+          <h3>Thanks — your message has been sent. I’ll be in touch soon.</h3>
+          <button class="button" type="button" data-contact-modal-close>Close</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

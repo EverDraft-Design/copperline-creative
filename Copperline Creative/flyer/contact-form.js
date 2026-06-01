@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
+    payload.projectType = formData.getAll("projectType");
 
     setStatus("Sending your message...", "loading");
 

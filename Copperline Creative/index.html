@@ -33,7 +33,7 @@
           <a href="#contact">Contact</a>
         </div>
 
-        <a class="button button-small" href="#contact-modal" data-contact-modal-open>Let's do this!</a>
+        <a class="button button-small" href="#contact-modal" data-contact-modal-open data-contact-cta="Homepage header Let's do this">Let's do this!</a>
       </nav>
     </header>
 
@@ -277,7 +277,7 @@
               As a professional copywriter, I love crafting copy that tells your story, keeps your customer's attention and builds connection.</p>
               Mother of three, lover of all things creative, and a big believer in the power of small businesses to make a big impact, I’m here to help you share your story with the world.  
             </p>
-            <a class="button" href="#contact-modal" data-contact-modal-open>Do I sound like a good fit? &rarr;</a>
+            <a class="button" href="#contact-modal" data-contact-modal-open data-contact-cta="Homepage about CTA">Do I sound like a good fit? &rarr;</a>
           </article>
 
           <article class="bento-card process-card" aria-labelledby="process-heading">
@@ -321,7 +321,7 @@
              
             We should chat! Whether you're ready to start a project or just want to ask a few questions, I'm here for it. I love talking shop and getting to know the people behind the businesses I work with, so don't hesitate to reach out.
           </p>
-          <a class="button" href="#contact-modal" data-contact-modal-open>Get in touch &rarr;</a>
+          <a class="button" href="#contact-modal" data-contact-modal-open data-contact-cta="Homepage footer Get in touch">Get in touch &rarr;</a>
         </div>
         <img
           class="contact-smear"
@@ -378,6 +378,10 @@
         </div>
 
         <form class="contact-modal-form" action="/api/contact" method="post" novalidate>
+          <input type="hidden" name="leadSource" value="Main website">
+          <input type="hidden" name="pagePath" value="/">
+          <input type="hidden" name="ctaLabel" value="Main website contact modal">
+
           <label>
             <span>Name</span>
             <input type="text" name="name" autocomplete="name" required>

@@ -40,6 +40,13 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
     }
 
+    const trigger = event ? event.currentTarget : null;
+    const ctaInput = form.querySelector("input[name='ctaLabel']");
+
+    if (ctaInput && trigger) {
+      ctaInput.value = trigger.dataset.contactCta || trigger.textContent.trim();
+    }
+
     previousFocus = document.activeElement;
     modal.hidden = false;
     document.body.classList.add("modal-open");

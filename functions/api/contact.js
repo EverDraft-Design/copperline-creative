@@ -1,5 +1,10 @@
 const RESEND_API_URL = "https://api.resend.com/emails";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LEAD_SOURCE_LABELS = {
+  "/": "Main website",
+  "/flyer/": "Flyer landing page",
+  "/faq/": "FAQ page",
+};
 
 function jsonResponse(body, status = 200) {
   return Response.json(body, {
@@ -20,6 +25,8 @@ function escapeHtml(value = "") {
 }
 
 function normalisePayload(payload) {
+  const pagePath = normalisePagePath(payload.pagePath || payload.path || "");
+
   return {
     name: String(payload.name || "").trim(),
     email: String(payload.email || "").trim(),
@@ -29,8 +36,37 @@ function normalisePayload(payload) {
       ? payload.projectType.map((value) => String(value).trim()).filter(Boolean)
       : String(payload.projectType || "").trim(),
     message: String(payload.message || "").trim(),
+    leadSource: String(payload.leadSource || payload.sourceLabel || "").trim() || getLeadSourceLabel(pagePath),
+    pagePath,
+    ctaLabel: String(payload.ctaLabel || payload.ctaSource || "").trim(),
     company: String(payload.company || "").trim(),
   };
+}
+
+function normalisePagePath(value) {
+  const rawPath = String(value || "").trim();
+
+  if (!rawPath) {
+    return "";
+  }
+
+  try {
+    const url = rawPath.startsWith("http")
+      ? new URL(rawPath)
+      : new URL(rawPath, "https://copperline-creative.com.au");
+    return url.pathname.endsWith("/") ? url.pathname : `${url.pathname}/`;
+  } catch {
+    return rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
+  }
+}
+
+function getLeadSourceLabel(pagePath) {
+  return LEAD_SOURCE_LABELS[pagePath] || "Copperline Creative website";
+}
+
+function getFallbackPagePath(request) {
+  const referer = request.headers.get("Referer") || request.headers.get("Referrer") || "";
+  return normalisePagePath(referer);
 }
 
 async function parseContactPayload(request) {
@@ -78,6 +114,14 @@ function buildEmailHtml(fields) {
   const projectTypeLine = projectType
     ? `<p><strong>Project type:</strong> ${escapeHtml(projectType)}</p>`
     : "";
+  const leadSource = fields.leadSource || getLeadSourceLabel(fields.pagePath);
+  const pagePath = fields.pagePath || "";
+  const pagePathLine = pagePath
+    ? `<p><strong>Page path:</strong> ${escapeHtml(pagePath)}</p>`
+    : "";
+  const ctaLine = fields.ctaLabel
+    ? `<p><strong>CTA:</strong> ${escapeHtml(fields.ctaLabel)}</p>`
+    : "";
 
   return `
     <h1>New Copperline Creative enquiry</h1>
@@ -89,7 +133,9 @@ function buildEmailHtml(fields) {
     <p><strong>Message:</strong></p>
     <p>${escapeHtml(fields.message).replaceAll("\n", "<br>")}</p>
     <hr>
-    <p>Submitted from Copperline Creative /flyer/</p>
+    <p><strong>Submitted from:</strong> ${escapeHtml(leadSource)}</p>
+    ${pagePathLine}
+    ${ctaLine}
   `;
 }
 
@@ -109,7 +155,10 @@ async function handleContactRequest(request, env) {
     );
   }
 
-  const fields = normalisePayload(payload);
+  const fields = normalisePayload({
+    ...payload,
+    pagePath: payload.pagePath || payload.path || getFallbackPagePath(request),
+  });
 
   if (fields.company) {
     return jsonResponse({ ok: true });

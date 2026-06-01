@@ -11,6 +11,7 @@
     <link rel="icon" href="Assets/brand/Favicon/favicon.ico">
     <link rel="apple-touch-icon" href="Assets/brand/Favicon/apple-touch-icon.png">
     <link rel="stylesheet" href="styles.css?v=faq-mobile-20260526">
+    <script src="contact-modal.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -32,7 +33,7 @@
           <a href="index.html#contact">Contact</a>
         </div>
 
-        <a class="button button-small" href="mailto:hello@copperline-creative.com.au">Let's do this!</a>
+        <a class="button button-small" href="#contact-modal" data-contact-modal-open data-contact-cta="FAQ header Let's do this">Let's do this!</a>
       </nav>
     </header>
 
@@ -146,7 +147,7 @@
             <p>
               I’d love to hear more about your business and what you’re hoping to create.
             </p>
-            <a class="button" href="mailto:hello@copperline-creative.com.au">Let’s chat</a>
+            <a class="button" href="#contact-modal" data-contact-modal-open data-contact-cta="FAQ CTA Let's chat">Let’s chat</a>
           </div>
           <img
             class="contact-smear"
@@ -173,5 +174,98 @@
         <span>ABN: 39 838 629 521</span>
       </div>
     </footer>
+
+    <div
+      id="contact-modal"
+      class="contact-modal"
+      data-contact-modal
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="contact-modal-heading"
+      hidden
+    >
+      <div class="contact-modal-card" role="document">
+        <button
+          class="contact-modal-close"
+          type="button"
+          aria-label="Close contact form"
+          data-contact-modal-close
+        >
+          ×
+        </button>
+
+        <div class="contact-modal-copy">
+          <p class="eyebrow">Let's chat</p>
+          <h2 id="contact-modal-heading">Tell me what you're dreaming up.</h2>
+          <p>
+            Share a few details and I'll come back to you with the next best step.
+          </p>
+        </div>
+
+        <form class="contact-modal-form" action="/api/contact" method="post" novalidate>
+          <input type="hidden" name="leadSource" value="FAQ page">
+          <input type="hidden" name="pagePath" value="/faq/">
+          <input type="hidden" name="ctaLabel" value="FAQ contact modal">
+
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+
+          <label>
+            <span>Phone</span>
+            <input type="tel" name="phone" autocomplete="tel">
+          </label>
+
+          <label>
+            <span>Business name</span>
+            <input type="text" name="businessName" autocomplete="organization">
+          </label>
+
+          <fieldset class="contact-modal-options">
+            <legend>Project type</legend>
+            <label>
+              <input type="checkbox" name="projectType" value="Website">
+              <span>Website</span>
+            </label>
+            <label>
+              <input type="checkbox" name="projectType" value="Logo & Branding">
+              <span>Logo &amp; Branding</span>
+            </label>
+            <label>
+              <input type="checkbox" name="projectType" value="Copywriting">
+              <span>Copywriting</span>
+            </label>
+            <label>
+              <input type="checkbox" name="projectType" value="Not sure yet">
+              <span>Not sure yet</span>
+            </label>
+          </fieldset>
+
+          <label class="flyer-form-honeypot" aria-hidden="true">
+            <span>Company</span>
+            <input type="text" name="company" tabindex="-1" autocomplete="off">
+          </label>
+
+          <label>
+            <span>Message</span>
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+
+          <button class="button" type="submit">Send Message</button>
+          <p class="contact-modal-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="contact-modal-success" tabindex="-1" hidden>
+          <h3>Thanks — your message has been sent. I’ll be in touch soon.</h3>
+          <button class="button" type="button" data-contact-modal-close>Close</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
