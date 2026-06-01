@@ -1213,14 +1213,19 @@ body.modal-open {
   display: grid;
   place-items: center;
   min-height: 360px;
+  overflow: hidden;
   border-radius: var(--radius-lg);
   background: #030303;
   box-shadow: 0 24px 54px rgba(36, 33, 31, 0.22);
 }
 
 .flyer-hero-mark img {
-  width: min(440px, 118%);
-  max-width: none;
+  display: block;
+  width: min(440px, 92%);
+  max-width: 100%;
+  height: auto;
+  border-radius: inherit;
+  object-fit: contain;
   filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.52));
 }
 
