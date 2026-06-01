@@ -1279,6 +1279,7 @@ body.modal-open {
 }
 
 .flyer-check-item {
+  position: relative;
   min-height: 96px;
   display: flex;
   align-items: flex-start;
@@ -1302,8 +1303,19 @@ body.modal-open {
 
 .flyer-check-item input {
   position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
   opacity: 0;
+  overflow: hidden;
   pointer-events: none;
+  clip-path: inset(50%);
 }
 
 .flyer-check-marker {
@@ -1317,6 +1329,11 @@ body.modal-open {
   background: rgba(255, 250, 242, 0.46);
   box-shadow: inset 0 0 0 4px rgba(255, 250, 242, 0.52);
   transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.flyer-check-item > span:last-child {
+  min-width: 0;
+  line-height: 1.35;
 }
 
 .flyer-check-marker::after {
