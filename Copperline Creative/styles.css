@@ -381,6 +381,58 @@ p {
   padding-bottom: 70px;
 
 }
+
+.package-card {
+  grid-column: 1 / -1;
+  min-height: 0;
+  height: auto;
+  padding-bottom: clamp(26px, 3vw, 34px);
+  background:
+    linear-gradient(145deg, rgba(245, 238, 246, 0.78), rgba(235, 194, 166, 0.42)),
+    url("Assets/textures/warm-paper-texture-card.png");
+}
+
+.package-inclusions {
+  position: relative;
+  z-index: 1;
+  columns: 2;
+  column-gap: 28px;
+  margin: 20px 0 0;
+  padding: 18px 0 0 18px;
+  border-top: 1px solid rgba(134, 73, 47, 0.16);
+  color: var(--charcoal-soft);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.package-inclusions li {
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 2px;
+}
+
+.package-inclusions li::marker {
+  color: var(--copper-deep);
+}
+
+.package-note {
+  position: relative;
+  z-index: 1;
+  margin: 15px 0 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  opacity: 0.82;
+}
+
+.package-card .service-price {
+  position: static;
+  width: 100%;
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(134, 73, 47, 0.16);
+  text-align: right;
+}
+
 .service-price {
   position: absolute;
   right: clamp(26px, 3vw, 34px);
@@ -1729,6 +1781,14 @@ body.modal-open {
 
   .service-card {
     min-height: 0;
+  }
+
+  .package-card {
+    grid-column: auto;
+  }
+
+  .package-inclusions {
+    columns: 1;
   }
 
   .contact-section {
